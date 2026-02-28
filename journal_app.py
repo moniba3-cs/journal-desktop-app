@@ -4,7 +4,6 @@ import json
 import os
 from datetime import datetime, date
 
-# ─── CONFIG ───────────────────────────────────────────────
 DATA_FILE = "journal_entries.json"
 
 BG          = "#fff0f5"
@@ -31,7 +30,6 @@ MOODS = [
     ("🤩", "Excited",  "#fef08a"),
 ]
 
-# ─── DATA ─────────────────────────────────────────────────
 def load_entries():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r") as f:
@@ -41,8 +39,6 @@ def load_entries():
 def save_entries(entries):
     with open(DATA_FILE, "w") as f:
         json.dump(entries, f, indent=2)
-
-# ─── APP ──────────────────────────────────────────────────
 class JournalApp:
     def __init__(self, root):
         self.root = root
@@ -60,14 +56,13 @@ class JournalApp:
         self._build_ui()
         self._show_view("write")
 
-    # ─── UI BUILD ─────────────────────────────────────────
     def _build_ui(self):
-        # ── Sidebar
+        
         self.sidebar = tk.Frame(self.root, bg=SIDEBAR, width=180)
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
 
-        # App title
+    
         tk.Label(self.sidebar, text="🌸", font=("Helvetica", 28),
                  bg=SIDEBAR).pack(pady=(28, 2))
         tk.Label(self.sidebar, text="my journal", font=("Helvetica", 13, "bold"),
@@ -75,10 +70,10 @@ class JournalApp:
         tk.Label(self.sidebar, text="a safe little space ♡",
                  font=("Helvetica", 8), bg=SIDEBAR, fg=MUTED).pack(pady=(2, 24))
 
-        # Divider
+
         tk.Frame(self.sidebar, bg=BORDER, height=1).pack(fill="x", padx=20, pady=4)
 
-        # Nav buttons
+
         self.nav_btns = {}
         nav_items = [
             ("write", "✏️  Write", "new entry"),
@@ -105,32 +100,29 @@ class JournalApp:
 
         tk.Frame(self.sidebar, bg=BORDER, height=1).pack(fill="x", padx=20, pady=12)
 
-        # Entry count
         self.entry_count_lbl = tk.Label(self.sidebar, text="",
                                          font=("Helvetica", 8), bg=SIDEBAR, fg=MUTED)
         self.entry_count_lbl.pack()
         self._update_count()
 
-        # Bottom quote
         tk.Label(self.sidebar, text='"write it out ♡"',
                  font=("Helvetica", 8, "italic"), bg=SIDEBAR,
                  fg=MUTED, wraplength=150).pack(side="bottom", pady=20)
 
-        # ── Main area
+    
         self.main = tk.Frame(self.root, bg=BG)
         self.main.pack(side="left", fill="both", expand=True)
 
-        # ── WRITE VIEW
         self.write_frame = tk.Frame(self.main, bg=BG)
 
-        # Date header
+
         today = datetime.now().strftime("%A, %B %d %Y")
         tk.Label(self.write_frame, text=today,
                  font=("Helvetica", 10), bg=BG, fg=MUTED).pack(anchor="w", padx=30, pady=(28, 2))
         tk.Label(self.write_frame, text="How are you feeling today?",
                  font=("Helvetica", 16, "bold"), bg=BG, fg=TEXT).pack(anchor="w", padx=30)
 
-        # Mood picker
+        
         mood_outer = tk.Frame(self.write_frame, bg=BG)
         mood_outer.pack(fill="x", padx=30, pady=(14, 0))
 
@@ -156,7 +148,7 @@ class JournalApp:
 
             self.mood_frames[(emoji, name, color)] = f
 
-        # Title
+    
         tk.Label(self.write_frame, text="Entry title",
                  font=("Helvetica", 9, "bold"), bg=BG, fg=MUTED).pack(anchor="w", padx=30, pady=(16, 2))
         self.title_entry = tk.Entry(self.write_frame, font=("Helvetica", 11),
@@ -165,7 +157,7 @@ class JournalApp:
                                     insertbackground=ACCENT)
         self.title_entry.pack(fill="x", padx=30, ipady=7)
 
-        # Body
+        
         tk.Label(self.write_frame, text="What's on your mind?",
                  font=("Helvetica", 9, "bold"), bg=BG, fg=MUTED).pack(anchor="w", padx=30, pady=(12, 2))
 
@@ -180,7 +172,7 @@ class JournalApp:
                                   padx=10, pady=10)
         self.body_text.pack(fill="both", expand=True)
 
-        # Save button
+    
         save_btn = tk.Button(self.write_frame, text="Save Entry 🌸",
                               font=("Helvetica", 11, "bold"),
                               bg=ACCENT, fg="white", relief="flat",
@@ -189,13 +181,13 @@ class JournalApp:
                               command=self._save_entry)
         save_btn.pack(padx=30, anchor="w")
 
-        # ── HISTORY VIEW
+    
         self.history_frame = tk.Frame(self.main, bg=BG)
 
         tk.Label(self.history_frame, text="📖 Past Entries",
                  font=("Helvetica", 16, "bold"), bg=BG, fg=TEXT).pack(anchor="w", padx=30, pady=(28, 4))
 
-        # Search bar
+        
         search_frame = tk.Frame(self.history_frame, bg=CARD,
                                  highlightthickness=1, highlightbackground=BORDER)
         search_frame.pack(fill="x", padx=30, pady=(0, 12))
@@ -205,7 +197,7 @@ class JournalApp:
                  relief="flat", insertbackground=ACCENT).pack(side="left", fill="x",
                                                                expand=True, ipady=8)
 
-        # Scrollable list
+        
         list_outer = tk.Frame(self.history_frame, bg=BG)
         list_outer.pack(fill="both", expand=True, padx=30)
 
@@ -221,11 +213,10 @@ class JournalApp:
         self.history_inner.bind("<Configure>", lambda e: self.history_canvas.configure(
             scrollregion=self.history_canvas.bbox("all")))
 
-        # ── STATS VIEW
+    
         self.stats_frame = tk.Frame(self.main, bg=BG)
         self._build_stats_view()
 
-    # ─── MOOD SELECT ──────────────────────────────────────
     def _select_mood(self, mood, frame):
         # Reset all
         for (e, n, c), f in self.mood_frames.items():
@@ -233,7 +224,7 @@ class JournalApp:
             for w in f.winfo_children():
                 w.configure(bg=CARD)
 
-        # Highlight selected
+    
         emoji, name, color = mood
         frame.configure(bg=color, highlightbackground=ACCENT)
         for w in frame.winfo_children():
@@ -241,7 +232,6 @@ class JournalApp:
 
         self.selected_mood = mood
 
-    # ─── SAVE ENTRY ───────────────────────────────────────
     def _save_entry(self):
         title = self.title_entry.get().strip()
         body = self.body_text.get("1.0", tk.END).strip()
@@ -266,7 +256,6 @@ class JournalApp:
         self.entries.insert(0, entry)
         save_entries(self.entries)
 
-        # Clear form
         self.title_entry.delete(0, tk.END)
         self.body_text.delete("1.0", tk.END)
         for (e, n, c), f in self.mood_frames.items():
@@ -279,7 +268,7 @@ class JournalApp:
         self._build_stats_view()
         messagebox.showinfo("saved! 🌸", "Your entry has been saved ♡")
 
-    # ─── HISTORY ──────────────────────────────────────────
+
     def refresh_history(self):
         for w in self.history_inner.winfo_children():
             w.destroy()
@@ -305,13 +294,13 @@ class JournalApp:
                         pady=0)
         card.pack(fill="x", pady=6)
 
-        # Color bar
+        
         tk.Frame(card, bg=color, width=6).pack(side="left", fill="y")
 
         content = tk.Frame(card, bg=CARD, padx=12, pady=10)
         content.pack(side="left", fill="both", expand=True)
 
-        # Top row
+
         top = tk.Frame(content, bg=CARD)
         top.pack(fill="x")
         tk.Label(top, text=f"{entry['mood_emoji']} {entry['title']}",
@@ -319,7 +308,7 @@ class JournalApp:
         tk.Label(top, text=entry["date"], font=("Helvetica", 8),
                  bg=CARD, fg=MUTED).pack(side="right")
 
-        # Mood badge
+    
         badge_frame = tk.Frame(content, bg=CARD)
         badge_frame.pack(anchor="w", pady=(2, 4))
         badge = tk.Label(badge_frame, text=f" {entry['mood_name']} ",
@@ -327,12 +316,12 @@ class JournalApp:
                          bg=color, fg=TEXT, padx=4, pady=2)
         badge.pack(side="left")
 
-        # Preview
+        
         preview = entry["body"][:120] + ("..." if len(entry["body"]) > 120 else "")
         tk.Label(content, text=preview, font=("Helvetica", 9),
                  bg=CARD, fg=MUTED, wraplength=480, justify="left").pack(anchor="w")
 
-        # Delete button
+    
         del_btn = tk.Button(card, text="✕", font=("Helvetica", 8),
                             bg=CARD, fg=MUTED, relief="flat", cursor="hand2",
                             command=lambda eid=entry["id"]: self._delete_entry(eid))
@@ -346,7 +335,7 @@ class JournalApp:
             self.refresh_history()
             self._build_stats_view()
 
-    # ─── STATS ────────────────────────────────────────────
+
     def _build_stats_view(self):
         for w in self.stats_frame.winfo_children():
             w.destroy()
@@ -361,7 +350,7 @@ class JournalApp:
                      font=("Helvetica", 11), bg=BG, fg=MUTED, justify="center").pack(pady=60)
             return
 
-        # ── Streak
+        
         streak = self._calc_streak()
         streak_frame = tk.Frame(self.stats_frame, bg=YELLOW,
                                  highlightthickness=1, highlightbackground=BORDER)
@@ -371,7 +360,6 @@ class JournalApp:
         tk.Label(streak_frame, text="keep writing every day ♡",
                  font=("Helvetica", 8), bg=YELLOW, fg=MUTED, pady=(0)).pack(pady=(0, 10))
 
-        # ── Summary cards
         summary_row = tk.Frame(self.stats_frame, bg=BG)
         summary_row.pack(fill="x", padx=30, pady=(0, 16))
 
@@ -388,7 +376,7 @@ class JournalApp:
             tk.Label(card, text=label, font=("Helvetica", 8),
                      bg=CARD, fg=MUTED).pack()
 
-        # ── Mood breakdown
+    
         tk.Label(self.stats_frame, text="mood breakdown",
                  font=("Helvetica", 10, "bold"), bg=BG, fg=TEXT).pack(anchor="w", padx=30, pady=(0, 8))
 
@@ -437,14 +425,13 @@ class JournalApp:
                 break
         return streak
 
-    # ─── NAV ──────────────────────────────────────────────
     def _show_view(self, view):
         self.current_view = view
         self.write_frame.pack_forget()
         self.history_frame.pack_forget()
         self.stats_frame.pack_forget()
 
-        # Update nav highlight
+    
         for key, (f, lbl, sub) in self.nav_btns.items():
             active = key == view
             bg = "#f8d7e3" if active else SIDEBAR
@@ -466,7 +453,6 @@ class JournalApp:
         self.entry_count_lbl.config(text=f"{n} entr{'y' if n==1 else 'ies'} written")
 
 
-# ─── RUN ──────────────────────────────────────────────────
 if __name__ == "__main__":
     root = tk.Tk()
     app = JournalApp(root)
